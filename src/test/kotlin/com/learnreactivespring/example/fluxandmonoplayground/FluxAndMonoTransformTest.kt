@@ -52,4 +52,20 @@ class FluxAndMonoTransformTest {
             .expectNext("JENNY")
             .verifyComplete()
     }
+
+    @Test
+    fun transformUsingFlatMap() {
+        val namesFlux = Flux.fromIterable(listOf("A", "B", "C", "D", "E", "F"))
+            .flatMap { Flux.fromIterable(convertToList(it)) } // db or external service call that returns a Flux
+            .log()
+
+        StepVerifier.create(namesFlux)
+            .expectNextCount(12)
+            .verifyComplete()
+    }
+
+    fun convertToList(s: String): List<String> {
+        Thread.sleep(1000)
+        return listOf(s, "newValue")
+    }
 }
